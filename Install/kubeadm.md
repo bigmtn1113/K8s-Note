@@ -57,7 +57,7 @@ Linux에 대해 알려진 endpoints
 - `kubelet`: cluster의 모든 machines에서 실행되고 pods 및 containers 시작과 같은 작업을 수행하는 구성 요소
 - `kubectl`: cluster와 대화하기 위한 command line util
 
-kubeadm은 `kubelet`이나 `kubectl`을 설치하거나 관리하지 않으므로 kubeadm이 설치하려는 K8s control plane의 version과 일치하는지 확인 필요.  
+kubeadm `kubelet`이나 `kubectl`을 설치하거나 관리하지 않으므로 kubeadm이 설치하려는 K8s control plane의 version과 일치하는지 확인 필요.  
 그렇지 않으면 예기치 않은 버그가 있는 동작으로 이어질 수 있는 version skew이 발생할 위험 존재.  
 kubelet과 control plane 사이의 minor version skew는 지원되지만 kubelet version은 API server version을 초과할 수 없음.  
 ex) 1.7.0을 실행하는 kubelet은 1.8.0 API server와 완전히 호환되어야 하지만 그 반대는 불가
@@ -112,7 +112,8 @@ kubelet에서 SELinux 지원이 개선될 때까지 이 작업을 수행
 
 구성 방법을 알고 있으면 SELinux를 활성화된 상태로 둘 수 있지만 kubeadm에서 지원하지 않는 설정이 필요할 수 있음.
 
-`baseurl`이 실패하면 Red Hat 기반 배포판이 `basearch`을 해석할 수 없으므로 `\$basearch`를 computer의 architecture로 교체. 해당 값을 보려면 `uname -m`을 입력.  
+`baseurl`이 실패하면 Red Hat 기반 배포판이 `basearch`을 해석할 수 없으므로 `\$basearch`를 computer의 architecture로 교체.  
+해당 값을 보려면 `uname -m`을 입력.  
 ex) `x86_64`의 `baseurl` URL: `https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64.`
 
 <hr>
