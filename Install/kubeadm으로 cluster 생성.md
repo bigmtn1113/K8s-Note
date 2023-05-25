@@ -13,29 +13,33 @@
 
 <br>
 
-1. Control plane node 초기화
+## Control plane node 초기화
 Control plane node는 control plane 구성 요소(etcd 및 API Server)가 실행되는 machine.
 
-(1) (권장) 단일 control plane `kubeadm` cluster를 고가용성으로 upgrade할 계획이 있는 경우 모든 control plane nodes에 대한 공유 endpoint를 설정하도록 `--control-plane-endpoint` 지정 필요. 이러한 endpoint는 LB의 DNS 이름 또는 IP 주소일 수 있음.
-(2) Pod network add-on을 선택하고 `kubeadm init`에 전달되는 인수가 필요한지 확인. 선택한 3rd-party 공급자에 따라 `--pod-network-cidr`를 공급자별 값으로 설정해야 할 수도 있음.
-(3) (선택 사항) `kubeadm`은 잘 알려진 endpoints 목록을 사용하여 container runtime 감지 시도. 다른 container runtime을 사용하거나 provisioning된 node에 둘 이상 설치된 경우 `kubeadm`에 `--cri-socket` 대한 인수 지정.
-(4) (선택 사항) 달리 지정하지 않는 한 `kubeadm`은 기본 gateway와 연결된 network interface를 사용하여 이 특정 control plane node의 API Server에 대한 advertise 주소를 설정. 다른 network interface를 사용하려면 `--apiserver-advertise-address=<ip-address>` 인수를 `kubeadm init`에 지정.
+1. (권장) 단일 control plane `kubeadm` cluster를 고가용성으로 upgrade할 계획이 있는 경우 모든 control plane nodes에 대한 공유 endpoint를 설정하도록 `--control-plane-endpoint` 지정 필요. 이러한 endpoint는 LB의 DNS 이름 또는 IP 주소일 수 있음.
+2. Pod network add-on을 선택하고 `kubeadm init`에 전달되는 인수가 필요한지 확인. 선택한 3rd-party 공급자에 따라 `--pod-network-cidr`를 공급자별 값으로 설정해야 할 수도 있음.
+3. (선택 사항) `kubeadm`은 잘 알려진 endpoints 목록을 사용하여 container runtime 감지 시도. 다른 container runtime을 사용하거나 provisioning된 node에 둘 이상 설치된 경우 `kubeadm`에 `--cri-socket` 대한 인수 지정.
+4. (선택 사항) 달리 지정하지 않는 한 `kubeadm`은 기본 gateway와 연결된 network interface를 사용하여 이 특정 control plane node의 API Server에 대한 advertise 주소를 설정. 다른 network interface를 사용하려면 `--apiserver-advertise-address=<ip-address>` 인수를 `kubeadm init`에 지정.
 
-Control plane node 초기화
+#### Control plane node 초기화
 `kubeadm init <args>`
 
-apiserver-advertise-address 및 ControlPlaneEndpoint에 대한 고려 사항
+<br>
+
+## apiserver-advertise-address 및 ControlPlaneEndpoint에 대한 고려 사항
 `--apiserver-advertise-address`이 특정 control plane node의 API Server에 대한 advertise 주소를 설정하는 데 사용될 수 있지만, `--control-plane-endpoint`은 모든 control plane nodes에 대한 공유 endpoint를 설정하는 데 사용 가능.
 `--control-plane-endpoint`는 IP 주소에 mapping할 수 있는 IP 주소와 DNS 이름을 모두 허용.
 
-Mapping example
+#### Mapping example
 `192.168.0.102 cluster-endpoint`
 
-여기서 `192.168.0.102`이 node의 IP 주소고 `cluster-endpoint`는 이 IP에 mapping되는 사용자 지정 DNS 이름입니다. 이렇게 하면 `--control-plane-endpoint=cluster-endpoint`를 `kubeadm init`로 전달하고 동일한 DNS 이름을 `kubeadm join`에 전달 가능. 나중에 고가용성 scenario에서 LB의 주소를 가리키도록 `cluster-endpoint` 수정 가능.
+여기서 `192.168.0.102`이 node의 IP 주소고 `cluster-endpoint`는 이 IP에 mapping되는 사용자 지정 DNS 이름. 이렇게 하면 `--control-plane-endpoint=cluster-endpoint`를 `kubeadm init`로 전달하고 동일한 DNS 이름을 `kubeadm join`에 전달 가능. 나중에 고가용성 scenario에서 LB의 주소를 가리키도록 `cluster-endpoint` 수정 가능.
 
 `--control-plane-endpoint` 없이 생성된 단일 control plane cluster를 고가용성 클러스터로 전환하는 것은 kubeadm에서 지원하지 않음.
 
-kubeadm init
+<br>
+
+## kubeadm init
 `kubeadm init`는 먼저 machine이 K8s를 실행할 준비가 되었는지 확인하기 위해 일련의 사전 검사를 실행. 이러한 사전 검사는 경고를 표시하고 오류가 발생하면 종료. `kubeadm init`은 그런 다음 cluster control plane 구성 요소를 download하고 설치 진행.
 
 ```
@@ -68,7 +72,9 @@ Cluster에 nodes를 join하려면 `kubeadm init`이 출력하는 `kubeadm join` 
 
 Token은 control plane node와 joining nodes 간의 상호 인증에 사용됨. 여기에 포함된 token은 secret. 이 token이 있으면 누구나 인증된 nodes를 cluster에 추가할 수 있으므로 안전하게 보관 필요. 이러한 tokens은 `kubeadm token` 명령을 사용하여 나열, 생성 및 삭제 가능.
 
-Pod network add-on 설치
+<br>
+
+## Pod network add-on 설치
 Pods가 서로 통신할 수 있도록 CNI 기반 Pod network add-on 배포 필요. Cluster DNS(CoreDNS)는 network가 설치되기 전에 시작되지 않음.
 
 Control plane node 또는 kubeconfig 자격 증명이 있는 node에서 다음 명령을 사용하여 Pod network add-on 설치 가능.
@@ -77,7 +83,7 @@ Control plane node 또는 kubeconfig 자격 증명이 있는 node에서 다음 �
 Cluster당 하나의 Pod network만 설치 가능.
 Pod network가 설치되면 `kubectl get pods --all-namespaces` 출력 중 CoreDNS Pod가 `Running`인지 확인하여 작동하는지 확인 가능. 그리고 CoreDNS Pod가 가동되고 실행되면 nodes를 joining하여 계속 사용 가능.
 
-Calico 설치
+### Calico 설치
 1. Tigera Calico operator 및 CRD(Custom resource definitions) 설치.
 `kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/tigera-operator.yaml`
 
@@ -93,7 +99,9 @@ CRD bundle의 size가 크기 때문에, `kubectl apply`은 request limits를 초
 
 Tigera operator는 `calico-system` namespace에 resources를 설치.
 
-Nodes join
+<br>
+
+## Nodes join
 Nodes는 workloads(containers 및 Pods 등)가 실행되는 위치. Cluster에 새 nodes를 추가하려면 각 machine에 대해 다음을 수행.
 - machine에 대한 SSH
 - Root로 접근(e.g. `sudo su -`)
