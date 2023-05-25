@@ -16,10 +16,25 @@
 ## Control plane node 초기화
 Control plane node는 control plane 구성 요소(etcd 및 API Server)가 실행되는 machine.
 
-1. (권장) 단일 control plane `kubeadm` cluster를 고가용성으로 upgrade할 계획이 있는 경우 모든 control plane nodes에 대한 공유 endpoint를 설정하도록 `--control-plane-endpoint` 지정 필요. 이러한 endpoint는 LB의 DNS 이름 또는 IP 주소일 수 있음.
+1. **(권장)** 단일 control plane `kubeadm` cluster를 고가용성으로 upgrade할 계획이 있는 경우 모든 control plane nodes에 대한 공유 endpoint를 설정하도록 `--control-plane-endpoint` 지정 필요. 이러한 endpoint는 LB의 DNS 이름 또는 IP 주소일 수 있음.
 2. Pod network add-on을 선택하고 `kubeadm init`에 전달되는 인수가 필요한지 확인. 선택한 3rd-party 공급자에 따라 `--pod-network-cidr`를 공급자별 값으로 설정해야 할 수도 있음.
-3. (선택 사항) `kubeadm`은 잘 알려진 endpoints 목록을 사용하여 container runtime 감지 시도. 다른 container runtime을 사용하거나 provisioning된 node에 둘 이상 설치된 경우 `kubeadm`에 `--cri-socket` 대한 인수 지정.
-4. (선택 사항) 달리 지정하지 않는 한 `kubeadm`은 기본 gateway와 연결된 network interface를 사용하여 이 특정 control plane node의 API Server에 대한 advertise 주소를 설정. 다른 network interface를 사용하려면 `--apiserver-advertise-address=<ip-address>` 인수를 `kubeadm init`에 지정.
+
+    ex) calico
+    ```
+    pod-network-cidr=192.168.0.0/16
+    ```
+4. **(선택 사항)** `kubeadm`은 잘 알려진 endpoints 목록을 사용하여 container runtime 감지 시도. 다른 container runtime을 사용하거나 provisioning된 node에 둘 이상 설치된 경우 `kubeadm`에 `--cri-socket` 대한 인수 지정.
+
+    ex) crio
+    ```
+    --cri-socket=/var/run/crio/crio.sock
+    ```
+5. **(선택 사항)** 달리 지정하지 않는 한 `kubeadm`은 기본 gateway와 연결된 network interface를 사용하여 이 특정 control plane node의 API Server에 대한 advertise 주소를 설정. 다른 network interface를 사용하려면 `--apiserver-advertise-address=<ip-address>` 인수를 `kubeadm init`에 지정.
+
+    ex) master node(172.31.0.100)
+    ```
+    --apiserver-advertise-address 172.31.0.100
+    ```
 
 #### Control plane node 초기화
 ```
