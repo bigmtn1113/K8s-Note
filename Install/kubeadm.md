@@ -224,6 +224,15 @@ ex) `x86_64`의 `baseurl` URL: `https://packages.cloud.google.com/yum/repos/kube
 Container runtime과 kubelet은 "cgroup driver"라는 속성을 갖고 있으며, cgroup driver는 Linux machines의 cgroups의 관리 측면에 있어서 중요.  
 Container runtime과 kubelet의 cgroup drivers를 일치시켜야 하며, 그렇지 않으면 kubelet process에 오류가 발생.
 
+Linux 배포판의 init system이 systemd인 경우, init process는 root control group(cgroup)을 생성 및 사용하는 cgroup 관리자로 작동.  
+systemd는 cgroup과 긴밀하게 통합되어 있으며 systemd unit당 cgroup을 할당.  
+결과적으로, systemd를 init system으로 사용하고 cgroupfs driver를 사용하면, 그 system은 두 개의 다른 cgroup 관리자를 소유.
+
+두 개의 cgroup 관리자는 system 상 사용 가능한 자원과 사용 중인 자원들에 대하여 두 가지 관점을 가져 혼동을 초래.  
+예를 들어, kubelet과 container runtime은 cgroupfs를 사용하고 나머지 processes는 systemd를 사용하도록 nodes를 구성한 경우, nodes가 자원 압박으로 인해 불안정해질 가능성 존재.
+
+이러한 불안정성을 줄이는 방법은, systemd가 init system으로 선택되었을 때에는 systemd를 kubelet과 container runtime의 cgroup driver로 사용하는 것.
+
 ### Container runtime의 cgroup driver를 systemd로 설정
 Containerd는 daemon 수준 options를 지정하기 위해 `/etc/containerd/config.toml`에 있는 구성 file을 사용.  
 기본 구성은 `containerd config default > /etc/containerd/config.toml`을 통해 생성 가능.
@@ -241,9 +250,24 @@ SystemdCgroup이 true로 바뀌었는지 확인
 containerd config dump | grep SystemdCgroup
 ```
 
+### kubelet의 cgroup driver를 systemd로 설정
+KubeletConfiguration를 수정하여 cgroupDriver option을 systemd로 지정.
+```
+kubectl edit cm kubelet-config -n kube-system
+...
+cgroupDriver: systemd
+...
+```
+
+Kubeadm은 cluster의 모든 nodes에 대해 동일한 `KubeletConfiguration`을 사용.  
+`kube-system` namespace 아래의 ConfigMap 객체에 `KubeletConfiguration`이 저장.
+
+kubeadm 하위 명령 `init`, `join` 및 `upgrade`를 실행하면 kubeadm이 `KubeletConfiguration`을 `/var/lib/kubelet/config.yaml` file로 작성하여 local node kubelet에 전달.
+
 <hr>
 
 ## 참고
 - kubeadm 설치 - https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+- container runtimes - https://kubernetes.io/docs/setup/production-environment/container-runtimes/
 - containerd 설치 - https://github.com/containerd/containerd/blob/main/docs/getting-started.md
 - K8s 필수 ports - https://kubernetes.io/docs/reference/networking/ports-and-protocols/
