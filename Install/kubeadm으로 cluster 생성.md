@@ -43,7 +43,7 @@ kubeadm init <args>
 
 <br>
 
-## apiserver-advertise-address 및 ControlPlaneEndpoint에 대한 고려 사항
+## ※ apiserver-advertise-address 및 ControlPlaneEndpoint에 대한 고려 사항
 `--apiserver-advertise-address`이 특정 control plane node의 API Server에 대한 advertise 주소를 설정하는 데 사용될 수 있지만, `--control-plane-endpoint`은 모든 control plane nodes에 대한 공유 endpoint를 설정하는 데 사용 가능.
 `--control-plane-endpoint`는 IP 주소에 mapping할 수 있는 IP 주소와 DNS 이름을 모두 허용.
 
