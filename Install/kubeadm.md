@@ -95,7 +95,8 @@ net.ipv4.ip_forward = 1
 ```
 
 ### containerd 설치
-containerd 뿐만 아니라 runc와 CNI plugins도 같이 download 필요.
+containerd 뿐만 아니라 runc와 CNI plugins도 같이 download 필요.  
+편의상 `sudo su -`후 진행.
 
 #### 1. containerd 설치
 ```
