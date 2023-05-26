@@ -233,8 +233,10 @@ containerd config default > /etc/containerd/config.toml
 sed -i 's/ SystemdCgroup = false/ SystemdCgroup = true/' /etc/containerd/config.toml
 
 systemctl restart containerd
+```
 
-# SystemdCgroup이 true로 바뀌었는지 확인
+SystemdCgroup이 true로 바뀌었는지 확인
+```
 containerd config dump | grep SystemdCgroup
 ```
 
