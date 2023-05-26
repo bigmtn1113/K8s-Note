@@ -52,6 +52,48 @@ Linux에 대해 알려진 endpoints
 |CRI-O|unix:///var/run/crio/crio.sock|
 |Docker Engine (cri-dockerd 사용)|unix:///var/run/cri-dockerd.sock|
 
+### 필수 요소들 설치 및 구성
+Linux의 K8s nodes를 위한 일반적인 설정들을 적용.
+
+#### IPv4를 forwarding하여 iptables가 bredge된 traffic 보게 하기
+```
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
+
+sudo modprobe overlay
+sudo modprobe br_netfilter
+
+# sysctl params required by setup, params persist across reboots
+cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
+
+# Apply sysctl params without reboot
+sudo sysctl --system
+```
+
+다음 명령을 실행하여 `br_netfilter`, `overlay` modules가 load되었는지 확인.
+```
+$ lsmod | grep br_netfilter
+br_netfilter           36864  0
+bridge                307200  1 br_netfilter
+
+$ lsmod | grep overlay
+overlay               167936  0
+```
+
+다음 명령을 실행하여 `sysctl` config에서 `net.bridge.bridge-nf-call-iptables`, `net.bridge.bridge-nf-call-ip6tables` 및 `net.ipv4.ip_forward` system 변수가 `1`로 설정되었는지 확인.
+```
+$ sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
+net.bridge.bridge-nf-call-iptables = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward = 1
+```
+
 ### containerd 설치
 containerd 뿐만 아니라 runc와 CNI plugins도 같이 download 필요.
 
