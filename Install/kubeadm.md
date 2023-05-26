@@ -9,7 +9,8 @@
 - Cluster에 있는 모든 machines 간의 전체 network 연결(공용 또는 사설 network가 양호).
 - kubelet이 제대로 작동하려면 swap을 비활성화.
   - 임시: `sudo swapoff -a`
-  - 지속: system에 구성된 방식에 따라 `/etc/fstab`, `systemd.swap`와 같은 구성 파일에서 swap이 비활성화되어 있는지 확인.
+  - 지속: system에 구성된 방식에 따라 `/etc/fstab`, `systemd.swap`와 같은 구성 파일에서 swap이 비활성화되어 있는지 확인.  
+    `free -m` 또는 `swapon -s`로 확인
 
 ### 모든 노드의 MAC 주소와 product_uuid가 고유한지 확인
 - network interfaces의 MAC 주소 확인: `ip link` or `ifconfig -a`
