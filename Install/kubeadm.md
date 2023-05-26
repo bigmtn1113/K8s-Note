@@ -217,6 +217,34 @@ kubelet에서 SELinux 지원이 개선될 때까지 이 작업을 수행
 해당 값을 보려면 `uname -m`을 입력.  
 ex) `x86_64`의 `baseurl` URL: `https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64.`
 
+<br>
+
+## cgroup driver 구성
+Container runtime과 kubelet은 "cgroup driver"라는 속성을 갖고 있으며, cgroup driver는 Linux machines의 cgroups의 관리 측면에 있어서 중요.  
+Container runtime과 kubelet의 cgroup drivers를 일치시켜야 하며, 그렇지 않으면 kubelet process에 오류가 발생.
+
+### Container runtime의 cgroup driver를 systemd로 설정
+Containerd는 daemon 수준 options를 지정하기 위해 `/etc/containerd/config.toml`에 있는 구성 file을 사용.  
+기본 구성은 `containerd config default > /etc/containerd/config.toml`을 통해 생성 가능.
+
+```
+mkdir -p /etc/containerd/
+containerd config default > /etc/containerd/config.toml
+
+vi /etc/containerd/config.toml
+```
+[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+  ...
+  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+    SystemdCgroup = true
+```
+
+systemctl restart containerd
+
+# SystemdCgroup이 true로 바뀌었는지 확인
+containerd config dump | grep SystemdCgroup
+```
+
 <hr>
 
 ## 참고
