@@ -230,14 +230,7 @@ Containerd는 daemon 수준 options를 지정하기 위해 `/etc/containerd/conf
 ```
 mkdir -p /etc/containerd/
 containerd config default > /etc/containerd/config.toml
-
-vi /etc/containerd/config.toml
-```
-[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
-  ...
-  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
-    SystemdCgroup = true
-```
+sed -i 's/ SystemdCgroup = false/ SystemdCgroup = true/' /etc/containerd/config.toml
 
 systemctl restart containerd
 
