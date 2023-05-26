@@ -21,7 +21,7 @@ Control plane node는 control plane 구성 요소(etcd 및 API Server)가 실행
 
     ex) calico
     ```
-    pod-network-cidr=192.168.0.0/16
+    --pod-network-cidr=192.168.0.0/16
     ```
 4. **(선택 사항)** `kubeadm`은 잘 알려진 endpoints 목록을 사용하여 container runtime 감지 시도. 다른 container runtime을 사용하거나 provisioning된 node에 둘 이상 설치된 경우 `kubeadm`에 `--cri-socket` 대한 인수 지정.
 
