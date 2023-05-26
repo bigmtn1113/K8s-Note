@@ -126,7 +126,7 @@ $ curl -LO https://github.com/opencontainers/runc/releases/download/v1.1.7/runc.
 $ install -m 755 runc.amd64 /usr/local/sbin/runc
 ```
 
-#### CNI plugins
+#### 3. CNI plugins 설치
 ```
 $ mkdir -p /opt/cni/bin
 $ curl -LO https://github.com/containernetworking/plugins/releases/download/v1.3.0/cni-plugins-linux-amd64-v1.3.0.tgz
