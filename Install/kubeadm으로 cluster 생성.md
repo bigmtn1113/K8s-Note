@@ -14,6 +14,8 @@
 <br>
 
 ## Control plane node 초기화
+※ Control plane에서만 진행.
+
 Control plane node는 control plane 구성 요소(etcd 및 API Server)가 실행되는 machine.
 
 1. **(권장)** 단일 control plane `kubeadm` cluster를 고가용성으로 upgrade할 계획이 있는 경우 모든 control plane nodes에 대한 공유 endpoint를 설정하도록 `--control-plane-endpoint` 지정 필요. 이러한 endpoint는 LB의 DNS 이름 또는 IP 주소일 수 있음.
@@ -61,6 +63,8 @@ kubeadm init <args>
 <br>
 
 ## kubeadm init
+※ Control plane에서만 진행.
+
 `kubeadm init`는 먼저 machine이 K8s를 실행할 준비가 되었는지 확인하기 위해 일련의 사전 검사를 실행.  
 이러한 사전 검사는 경고를 표시하고 오류가 발생하면 종료.  
 `kubeadm init`은 그런 다음 cluster control plane 구성 요소를 download하고 설치 진행.
@@ -100,6 +104,8 @@ Token은 control plane node와 joining nodes 간의 상호 인증에 사용됨. 
 <br>
 
 ## Pod network add-on 설치
+※ Control plane에서만 진행.
+
 Pods가 서로 통신할 수 있도록 CNI 기반 Pod network add-on 배포 필요. Cluster DNS(CoreDNS)는 network가 설치되기 전에 시작되지 않음.
 
 Control plane node 또는 kubeconfig 자격 증명이 있는 node에서 다음 명령을 사용하여 Pod network add-on 설치 가능.
@@ -136,7 +142,9 @@ Pod network가 설치되면 `kubectl get pods --all-namespaces` 출력 중 CoreD
 
 <br>
 
-## Nodes join
+## Worker nodes join
+※ Worker nodes에서만 진행.
+
 Nodes는 workloads(containers 및 Pods 등)가 실행되는 위치. Cluster에 새 nodes를 추가하려면 각 machine에 대해 다음을 수행.
 - machine에 대한 SSH
 - Root로 접근(e.g. `sudo su -`)
