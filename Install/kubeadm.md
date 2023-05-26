@@ -1,4 +1,4 @@
-# Kubeadm 설치
+# kubeadm 설치
 
 <br>
 
@@ -34,7 +34,9 @@ K8s 구성 요소가 서로 통신하려면 특정 port open 필요.
 |TCP|Inbound|10250|Kubelet API|Self, Control plane|
 |TCP|Inbound|30000-32767|NodePort Services|All|
 
-### Container runtime 설치
+<br>
+
+## Container runtime 설치
 Pods 안에서 containers를 실행시키기 위해 K8s는 container runtime을 사용.  
 기본적으로 K8s는 선택된 container runtime과 통신하기 위해 CRI(Container Runtime Interface)를 사용.  
 Runtime을 지정하지 않으면 kubeadm은 알려진 endpoints 목록을 scan하여 설치된 container runtime을 자동으로 감지하려고 시도.  
@@ -49,6 +51,62 @@ Linux에 대해 알려진 endpoints
 |containerd|unix:///var/run/containerd/containerd.sock|
 |CRI-O|unix:///var/run/crio/crio.sock|
 |Docker Engine (cri-dockerd 사용)|unix:///var/run/cri-dockerd.sock|
+
+### containerd 설치
+containerd 뿐만 아니라 runc와 CNI plugins도 같이 download 필요.
+
+#### 1. containerd 설치
+```
+$ curl -LO https://github.com/containerd/containerd/releases/download/v1.7.1/containerd-1.7.1-linux-amd64.tar.gz
+$ tar Cxzvf /usr/local containerd-1.7.1-linux-amd64.tar.gz
+bin/
+bin/containerd-shim-runc-v2
+bin/containerd-shim
+bin/ctr
+bin/containerd-shim-runc-v1
+bin/containerd
+bin/containerd-stress
+```
+
+※ systemd를 통해 containerd를 시작하는 경우
+```
+$ mkdir -p /usr/local/lib/systemd/system/
+$ curl https://raw.githubusercontent.com/containerd/containerd/main/containerd.service > /usr/local/lib/systemd/system/containerd.service
+
+$ systemctl daemon-reload
+$ systemctl enable --now containerd
+Created symlink /etc/systemd/system/multi-user.target.wants/containerd.service → /usr/local/lib/systemd/system/containerd.service.
+```
+
+#### 2. runc 설치
+```
+$ curl -LO https://github.com/opencontainers/runc/releases/download/v1.1.7/runc.amd64
+$ install -m 755 runc.amd64 /usr/local/sbin/runc
+```
+
+#### CNI plugins
+```
+$ mkdir -p /opt/cni/bin
+$ curl -LO https://github.com/containernetworking/plugins/releases/download/v1.3.0/cni-plugins-linux-amd64-v1.3.0.tgz
+$ tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-v1.3.0.tgz
+./
+./macvlan
+./static
+./vlan
+./portmap
+./host-local
+./vrf
+./bridge
+./tuning
+./firewall
+./host-device
+./sbr
+./loopback
+./dhcp
+./ptp
+./ipvlan
+./bandwidth
+```
 
 <br>
 
@@ -121,4 +179,5 @@ ex) `x86_64`의 `baseurl` URL: `https://packages.cloud.google.com/yum/repos/kube
 
 ## 참고
 - kubeadm 설치 - https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+- containerd 설치 - https://github.com/containerd/containerd/blob/main/docs/getting-started.md
 - K8s 필수 ports - https://kubernetes.io/docs/reference/networking/ports-and-protocols/
