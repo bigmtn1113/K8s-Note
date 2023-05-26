@@ -251,6 +251,8 @@ containerd config dump | grep SystemdCgroup
 ```
 
 ### kubelet의 cgroup driver를 systemd로 설정
+※ Control plane에서만 진행.
+
 KubeletConfiguration를 수정하여 cgroupDriver option을 systemd로 지정.
 ```
 kubectl edit cm kubelet-config -n kube-system
