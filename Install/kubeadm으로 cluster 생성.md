@@ -18,20 +18,20 @@
 
 Control plane node는 control plane 구성 요소(etcd 및 API Server)가 실행되는 machine.
 
-1. **(권장)** 단일 control plane `kubeadm` cluster를 고가용성으로 upgrade할 계획이 있는 경우 모든 control plane nodes에 대한 공유 endpoint를 설정하도록 `--control-plane-endpoint` 지정 필요. 이러한 endpoint는 LB의 DNS 이름 또는 IP 주소일 수 있음.
-2. Pod network add-on을 선택하고 `kubeadm init`에 전달되는 인수가 필요한지 확인. 선택한 3rd-party 공급자에 따라 `--pod-network-cidr`를 공급자별 값으로 설정해야 할 수도 있음.
+- **(권장)** 단일 control plane `kubeadm` cluster를 고가용성으로 upgrade할 계획이 있는 경우 모든 control plane nodes에 대한 공유 endpoint를 설정하도록 `--control-plane-endpoint` 지정 필요. 이러한 endpoint는 LB의 DNS 이름 또는 IP 주소일 수 있음.
+- Pod network add-on을 선택하고 `kubeadm init`에 전달되는 인수가 필요한지 확인. 선택한 3rd-party 공급자에 따라 `--pod-network-cidr`를 공급자별 값으로 설정해야 할 수도 있음.
 
     ex) calico
     ```
     --pod-network-cidr=192.168.0.0/16
     ```
-4. **(선택 사항)** `kubeadm`은 잘 알려진 endpoints 목록을 사용하여 container runtime 감지 시도. 다른 container runtime을 사용하거나 provisioning된 node에 둘 이상 설치된 경우 `kubeadm`에 `--cri-socket` 대한 인수 지정.
+- **(선택 사항)** `kubeadm`은 잘 알려진 endpoints 목록을 사용하여 container runtime 감지 시도. 다른 container runtime을 사용하거나 provisioning된 node에 둘 이상 설치된 경우 `kubeadm`에 `--cri-socket` 대한 인수 지정.
 
     ex) crio
     ```
     --cri-socket=/var/run/crio/crio.sock
     ```
-5. **(선택 사항)** 달리 지정하지 않는 한 `kubeadm`은 기본 gateway와 연결된 network interface를 사용하여 이 특정 control plane node의 API Server에 대한 advertise 주소를 설정. 다른 network interface를 사용하려면 `--apiserver-advertise-address=<ip-address>` 인수를 `kubeadm init`에 지정.
+- **(선택 사항)** 달리 지정하지 않는 한 `kubeadm`은 기본 gateway와 연결된 network interface를 사용하여 이 특정 control plane node의 API Server에 대한 advertise 주소를 설정. 다른 network interface를 사용하려면 `--apiserver-advertise-address=<ip-address>` 인수를 `kubeadm init`에 지정.
 
     ex) master node(172.31.0.100)
     ```
@@ -40,7 +40,8 @@ Control plane node는 control plane 구성 요소(etcd 및 API Server)가 실행
 
 #### Control plane node 초기화
 ```
-kubeadm init <args>
+# kubeadm init <args>
+kubeadm init --pod-network-cidr=192.168.0.0/16
 ```
 
 <br>
@@ -88,7 +89,8 @@ as root:
   kubeadm join <control-plane-host>:<control-plane-port> --token <token> --discovery-token-ca-cert-hash sha256:<hash>
 ```
 
-Root가 아닌 사용자에 대해 kubectl이 작동하도록 하려면 `kubeadm init` 출력의 일부이기도 한 다음 명령을 실행.
+Root가 아닌 사용자에 대해 kubectl이 작동하도록 하려면 `kubeadm init` 출력의 일부이기도 한 다음 명령을 실행.  
+※ 현재 root로 접근되어 있다면 `exit`한 후 진행
 ```
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
@@ -114,31 +116,42 @@ kubectl apply -f <add-on.yaml>
 ```
 
 Cluster당 하나의 Pod network만 설치 가능.  
-Pod network가 설치되면 `kubectl get pods --all-namespaces` 출력 중 CoreDNS Pod가 `Running`인지 확인하여 작동하는지 확인 가능.  
-그리고 CoreDNS Pod가 가동되고 실행되면 nodes를 joining하여 계속 사용 가능.
 
 ### Calico 설치
-1. Tigera Calico operator 및 CRD(Custom resource definitions) 설치.
-    ```
-    kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/tigera-operator.yaml
-    ```
+#### 1. Tigera Calico operator 및 CRD(Custom resource definitions) 설치.
+```
+kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/tigera-operator.yaml
+```
 
-    CRD bundle의 size가 크기 때문에, `kubectl apply`은 request limits를 초과할 수 있으므로 `kubectl create` 또는 `kubectl replace`를 사용.
+CRD bundle의 size가 크기 때문에, `kubectl apply`은 request limits를 초과할 수 있으므로 `kubectl create` 또는 `kubectl replace`를 사용.
 
-2. 필요한 CR(Custom Resource)을 작성하여 Calico 설치.
-     ```
-     kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/custom-resources.yaml
-     ```
+#### 2. 필요한 CR(Custom Resource)을 작성하여 Calico 설치.
+ ```
+ kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/custom-resources.yaml
+ ```
 
-    이 manifest를 만들기 전에 contents를 읽고 설정이 환경에 맞는지 확인 필요.  
-    예를 들어 pod network CIDR과 일치하도록 기본 IP pool CIDR을 변경해야 할 수 있음.
+이 manifest를 만들기 전에 contents를 읽고 설정이 환경에 맞는지 확인 필요.  
+예를 들어 pod network CIDR과 일치하도록 기본 IP pool CIDR을 변경해야 할 수 있음.
 
-3. 다음 명령을 사용하여 모든 Pods가 실행 중인지 확인.
-    ```
-    watch kubectl get pods -n calico-system
-    ```
+#### 3. 다음 명령을 사용하여 모든 Pods가 실행 중인지 확인.
+```
+watch kubectl get pods -n calico-system
+```
 
-    Tigera operator는 `calico-system` namespace에 resources를 설치.
+Tigera operator는 `calico-system` namespace에 resources를 설치.
+
+### 상태 확인
+Control plane node의 STATUS가 Ready 상태인 지 확인.
+```
+kubectl get nodes
+```
+
+Pod network가 설치되면 `kubectl get pods --all-namespaces` 출력 중 CoreDNS Pod가 `Running`인지 확인하여 작동하는지 확인 가능.  
+그리고 CoreDNS Pod가 가동되고 실행되면 nodes를 joining하여 계속 사용 가능.
+```
+kubectl get pods --all-namespaces
+```
+
 
 <br>
 
