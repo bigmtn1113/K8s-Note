@@ -6,15 +6,13 @@
 - kubectl 설치
 - 64-bit (AMD64, Intel 64) device architecture 기반
 - AWS 계정, IAM keys 생성 및 구성. IAM 사용자는 다음과 같은 적절한 권한 필요.
-  ```
-  AmazonEC2FullAccess
-  AmazonRoute53FullAccess
-  AmazonS3FullAccess
-  IAMFullAccess
-  AmazonVPCFullAccess
-  AmazonSQSFullAccess
-  AmazonEventBridgeFullAccess
-  ```
+  - AmazonEC2FullAccess
+  - AmazonRoute53FullAccess
+  - AmazonS3FullAccess
+  - IAMFullAccess
+  - AmazonVPCFullAccess
+  - AmazonSQSFullAccess
+  - AmazonEventBridgeFullAccess
 
 <br>
 
@@ -56,7 +54,7 @@ kOps는 설치 이후에도 clusters 관리 가능.
 하지만 이 S3 bucket에 접근 가능한 사람은 사용자의 모든 clusters에 관리자 접근이 가능하게 되니, 운영팀 이외로 공유되지 않도록 주의 필요.  
 그래서 보통 한 운영팀 당 하나의 S3 bucket을 관리.
 
-- AWS_PROFILE 선언(AWS CLI 동작을 위해 다른 profile을 선택해야 할 경우).
+- `AWS_PROFILE` 선언(AWS CLI 동작을 위해 다른 profile을 선택해야 할 경우).
 - `aws s3 mb s3://clusters.dev.example.com`를 이용해 S3 버킷 생성.
 - `export KOPS_STATE_STORE=s3://clusters.dev.example.com`하면, kOps는 이 위치를 기본값으로 인식. 이 부분을 bash profile등에 넣어두는것을 권장.
 
