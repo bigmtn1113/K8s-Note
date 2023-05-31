@@ -72,6 +72,8 @@ kOps는 cluster에 사용될 설정을 생성.
 - Instance group 수정: `kops edit ig --name=useast1.dev.example.com nodes`
 - Master instance group 수정: `kops edit ig --name=useast1.dev.example.com master-us-east-1c`
 
+※ 출력되는 commands는 상이할 수 있음.
+
 Instance group은 K8s nodes로 등록된 instances의 집합이고 AWS상에서는 auto-scaling-groups를 통해 생성됨.  
 사용자는 여러 개의 instance groups 관리 가능.
 
@@ -85,11 +87,95 @@ kops update cluster useast1.dev.example.com --yes
 
 ※ `kops rolling-update cluster`로 설정 원복 가능.
 
+### 6. 확인
+`kops update cluster` 명령 실행 후 출력되는 commands 확인.
+
+- Cluster 검증: `kops validate cluster --wait 10m`
+- Nodes 조회: `kubectl get nodes --show-labels`
+
 <br>
 
 ## Cluster 삭제
 ```
 kops delete cluster useast1.dev.example.com --yes
+```
+
+<br>
+
+## ※ Troubleshooting
+### `kops validate cluster` 및 `kubectl get nodes` error
+#### 문제
+```
+$ kops validate cluster --wait 10m
+...
+W0531 06:05:04.257912    4552 validate_cluster.go:184] (will retry): unexpected error during validation: error listing nodes: Unauthorized
+...
+```
+```
+$ kubectl get nodes
+...
+E0531 06:07:40.410817    4678 memcache.go:265] couldn't get current server API group list: Get "http://localhost:8080/api?timeout=32s": dial tcp 127.0.0.1:8080: connect: connection refused
+The connection to the server localhost:8080 was refused - did you specify the right host or port?
+```
+
+#### 원인
+`kubectl config view` 명령 실행 시 user 관련 설정이 되어 있지 않은 상태임을 확인.
+
+```
+$ kubectl config view
+...
+contexts:
+- context:
+    cluster: useast1.dev.example.com
+    user: ""
+  name: useast1.dev.example.com
+...
+users: null
+```
+
+#### 해결
+```
+$ kops export kubecfg --admin
+```
+```
+$ kubectl config view
+...
+contexts:
+- context:
+    cluster: useast1.dev.example.com
+    user: useast1.dev.example.com
+  name: useast1.dev.example.com
+...
+users:
+- name: useast1.dev.example.com
+  user:
+    client-certificate-data: DATA+OMITTED
+    client-key-data: DATA+OMITTED
+```
+```
+$ kops validate cluster --wait 10m
+...
+INSTANCE GROUPS
+NAME                            ROLE            MACHINETYPE     MIN     MAX     SUBNETS
+control-plane-ap-northeast-2a   ControlPlane    t3.medium       1       1       ap-northeast-2a
+nodes-ap-northeast-2a           Node            t3.medium       3       3       ap-northeast-2a,ap-northeast-2c
+
+NODE STATUS
+NAME                    ROLE            READY
+i-0471e6dd25752dc4a     node            True
+i-083cf8abb4e02c91a     node            True
+i-0d5162edc4223606d     node            True
+i-0d5bf35a478a1cdab     control-plane   True
+
+Your cluster kops.bigmtn.link is read
+```
+```
+$ kubectl get node
+NAME                  STATUS   ROLES           AGE     VERSION
+i-0471e6dd25752dc4a   Ready    node            6m14s   v1.26.5
+i-083cf8abb4e02c91a   Ready    node            6m41s   v1.26.5
+i-0d5162edc4223606d   Ready    node            22m     v1.26.5
+i-0d5bf35a478a1cdab   Ready    control-plane   24m     v1.26.5
 ```
 
 <hr>
