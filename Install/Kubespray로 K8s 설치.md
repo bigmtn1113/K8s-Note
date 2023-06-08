@@ -17,7 +17,11 @@
 - Worker-node-3
 
 #### OS
-- Bastion 및 모든 server는 ubuntu로 진행
+- Ubuntu
+
+#### CPU 및 Memory
+- 2vCPU
+- 4GiB
 
 <br>
 
