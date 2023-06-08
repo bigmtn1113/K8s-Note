@@ -158,7 +158,9 @@ ansible-playbook -i inventory/mycluster/hosts.yaml  --become --become-user=root 
 <br>
 
 ## 상태 확인
-Root가 아닌 사용자에 대해 kubectl이 작동하도록 하려면 kubeadm init 출력의 일부이기도 한 다음 명령을 실행.  
+※ Control plane에서 진행.
+
+Root가 아닌 사용자에 대해 kubectl이 작동하도록 하려면 다음 명령을 실행.  
 ※ 현재 root로 접근되어 있다면 exit한 후 진행
 
 ```
