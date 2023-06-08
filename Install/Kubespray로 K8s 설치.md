@@ -77,7 +77,7 @@ $ sudo apt-get -y install git
 
 ## 1. Ansible 설치
 사용 가능한 Python version에 따라 사용할 ansible version 선택이 제한될 수 있음.  
-kubespray에서 사용하는 ansible version을 Python 가상 환경에 배포하는 것을 권장.
+Kubespray에서 사용하는 ansible version을 Python 가상 환경에 배포하는 것을 권장.
 
 ```
 git clone https://github.com/kubernetes-sigs/kubespray.git
@@ -153,6 +153,24 @@ all:
 # /etc/에 SSL keys writing, packages 설치 그리고 다양한 systemd daemons와 interacting 등과 같은 작업을 위해 `--become` option 필수.
 # `--become` option이 없으면 playbook 실행 실패.
 ansible-playbook -i inventory/mycluster/hosts.yaml  --become --become-user=root cluster.yml
+```
+
+<br>
+
+## 상태 확인
+Root가 아닌 사용자에 대해 kubectl이 작동하도록 하려면 kubeadm init 출력의 일부이기도 한 다음 명령을 실행.  
+※ 현재 root로 접근되어 있다면 exit한 후 진행
+
+```
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
+
+Control plane 및 worker nodes의 STATUS가 Ready 상태인 지 확인.
+
+```
+kubectl get nodes
 ```
 
 <hr>
