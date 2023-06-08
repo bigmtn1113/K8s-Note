@@ -172,7 +172,12 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 Control plane 및 worker nodes의 STATUS가 Ready 상태인 지 확인.
 
 ```
-kubectl get nodes
+$ kubectl get nodes
+NAME    STATUS   ROLES           AGE     VERSION
+node1   Ready    control-plane   3m55s   v1.26.5
+node2   Ready    <none>          2m52s   v1.26.5
+node3   Ready    <none>          2m52s   v1.26.5
+node4   Ready    <none>          2m52s   v1.26.5
 ```
 
 <hr>
