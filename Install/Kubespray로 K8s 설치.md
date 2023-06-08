@@ -2,6 +2,10 @@
 
 <br>
 
+※ SSH 설정 중 일부분을 제외하고 이후 진행되는 모든 작업은 Bastion에서 진행.
+
+<br>
+
 ## 구성 환경
 #### public
 - Bastion
@@ -20,7 +24,9 @@
 ## 사전 준비 사항
 ### ssh 설정
 ```
-$ ssh-keygen -t ed25519
+# SSH key 생성
+ssh-keygen -t ed25519
+
 $ ls ~/.ssh/
 authorized_keys  id_ed25519  id_ed25519.pub
 
@@ -28,13 +34,13 @@ $ cat ~/.ssh/id_ed25519.pub
 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBsJyyDnHPKCYPhnzLf+SBSmm2dxIyfxYAteH/To6gl3 ubuntu@ip-<bastion ip>
 
 # control plane 및 worker nodes에 접속 후, 실행
-$ echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBsJyyDnHPKCYPhnzLf+SBSmm2dxIyfxYAteH/To6gl3 ubuntu@ip-<bastion ip>" >> ~/.ssh/authorized_keys
+echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBsJyyDnHPKCYPhnzLf+SBSmm2dxIyfxYAteH/To6gl3 ubuntu@ip-<bastion ip>" >> ~/.ssh/authorized_keys
 
 # bastion에서 control plane 및 worker nodes에 ssh 접속
-$ ssh <control plane ip>
-$ ssh <worker node 1 ip>
-$ ssh <worker node 2 ip>
-$ ssh <worker node 3 ip>
+ssh <control plane ip>
+ssh <worker node 1 ip>
+ssh <worker node 2 ip>
+ssh <worker node 3 ip>
 ```
 
 ### Python3 및 pip3 설치
@@ -60,12 +66,12 @@ $ sudo apt-get -y install python3-virtualenv
 
 ### git 설치
 ```
-sudo apt-get -y install git
+$ sudo apt-get -y install git
 ```
 
 <br>
 
-## Ansible 설치
+## 1. Ansible 설치
 사용 가능한 Python version에 따라 사용할 ansible version 선택이 제한될 수 있음.  
 kubespray에서 사용하는 ansible version을 Python 가상 환경에 배포하는 것을 권장.
 
@@ -89,7 +95,7 @@ pip3 install -U -r requirements.txt
 
 <br>
 
-## Ansible 설정
+## 2. Ansible 설정
 ```
 cp -rfp inventory/sample inventory/mycluster
 
